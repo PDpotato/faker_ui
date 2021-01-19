@@ -9,7 +9,7 @@ class Func(Enum):
     LATITUDE = "地址坐标"
     COUNTRY = "国家"
     PROVINCE = "省份"
-    CITY_SUFFIX = "市县"
+    CITY = "市县"
     DISTRICT = "区"
     STREET_SUFFIX = "街"
     COMPANY = "公司"
@@ -48,7 +48,7 @@ class RandomInfo(Faker):
     def __init__(self, locale="zh-CN"):
         super().__init__(locale=locale)
         self.random_dict = {Func.ADDRESS.value: self.address, Func.COUNTRY.value: self.country,
-                            Func.PROVINCE.value: self.province, Func.CITY_SUFFIX.value: self.city_suffix,
+                            Func.PROVINCE.value: self.province, Func.CITY.value: self.city,
                             Func.DISTRICT.value: self.district, Func.STREET_SUFFIX.value: self.street_suffix,
                             Func.SSN.value: self.ssn, Func.JOB.value: self.job, Func.COMPANY.value: self.company,
                             Func.NAME.value: self.name, Func.PHONE_NUMBER.value: self.phone_number,
@@ -104,4 +104,4 @@ class RandomInfo(Faker):
 
 if __name__ == '__main__':
     f = RandomInfo("zh-CN")
-    print(f.random_dict.get(Func.HEX_COLOR.value)())
+    print(f.random_dict.get(Func.CITY.value)())
