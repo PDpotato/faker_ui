@@ -8,6 +8,10 @@ class Func(Enum):
     ADDRESS = "地址"
     LATITUDE = "地址坐标"
     COUNTRY = "国家"
+    PROVINCE = "省份"
+    CITY_SUFFIX = "市县"
+    DISTRICT = "区"
+    STREET_SUFFIX = "街"
     COMPANY = "公司"
     SSN = "身份证号"
     JOB = "职位"
@@ -44,6 +48,8 @@ class RandomInfo(Faker):
     def __init__(self, locale="zh-CN"):
         super().__init__(locale=locale)
         self.random_dict = {Func.ADDRESS.value: self.address, Func.COUNTRY.value: self.country,
+                            Func.PROVINCE.value: self.province, Func.CITY_SUFFIX.value: self.city_suffix,
+                            Func.DISTRICT.value: self.district, Func.STREET_SUFFIX.value: self.street_suffix,
                             Func.SSN.value: self.ssn, Func.JOB.value: self.job, Func.COMPANY.value: self.company,
                             Func.NAME.value: self.name, Func.PHONE_NUMBER.value: self.phone_number,
                             Func.EMAIL.value: self.email, Func.IPV4.value: self.ipv4,

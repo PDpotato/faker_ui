@@ -98,7 +98,7 @@ class TestView(object):
                     relief="groove", font=self.font,
                     command=lambda v=view_window, d=distance: self.sql_frame(v, d, l1, "数据库模拟数据", self.choose_field))
         b2 = Button(operation_window, text="WEB模拟数据", overrelief="ridge", cursor=self.cursor, bg=self.color,
-                    relief="groove", font=self.font,
+                    relief="groove", font=self.font, state="disable",
                     command=lambda v=view_window, d=distance: self.web_frame(v, d, l1, "WEB模拟数据"))
         b3 = Button(operation_window, text="数据库导出EXCEL", overrelief="ridge", cursor=self.cursor, bg=self.color,
                     relief="groove", font=self.font, state="disable",
@@ -417,15 +417,16 @@ class TestView(object):
         var.set(int(n * s["to"]))
 
     def send(self, method, url, thread_var, request_var, data_var):
-        if url.get() == "":
+        url_adr = url.get()
+        if url_adr == "":
             url["highlightbackground"] = "red"
             url["highlightcolor"] = "red"
             url["highlightthickness"] = 1
             return
         data_var = data_var.get().strip()
         func = self.methods.get(method.get())
-        if not url.get().startswith("http"):
-            url["text"] = ("http://" + url.get())
+        if not url_adr.startswith("http"):
+            url_adr = "http://" + url.get()
         start = time.time()
         count = request_var.get() // thread_var.get()
         header = {"Authorization": self.auth}
@@ -433,7 +434,7 @@ class TestView(object):
             header["Content-Type"] = data_var
         try:
             for i in range(count):
-                self.refresh(func, url.get(), header, data_var)
+                self.refresh(func, url_adr, header, data_var)
         except Exception as e:
             messagebox.showerror(title="警告", message=e, parent=self.window)
             return
