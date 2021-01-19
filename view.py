@@ -109,7 +109,7 @@ class TestView(object):
         b5 = Button(operation_window, text="生成EXCEL", overrelief="ridge", cursor=self.cursor, bg=self.color,
                     relief="groove", font=self.font,
                     command=lambda v=view_window, d=distance: self.excel_frame(v, d, l1, "生成EXCEL"))
-        l3 = Label(operation_window, text="author:贺琳植", font=self.font, bg=self.color, width=w, fg="#999966")
+        l3 = Label(operation_window, text="author:helz", font=self.font, bg=self.color, width=w, fg="#999966")
         operation_window.add(b1, height=60, width=operation_width, sticky="n")
         operation_window.add(b2, height=60, width=operation_width, sticky="n")
         operation_window.add(b3, height=60, width=operation_width, sticky="n")
