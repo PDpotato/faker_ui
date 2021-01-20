@@ -72,7 +72,7 @@ class TestView(object):
 
     def main_window(self):
         w = 1400
-        h = 700
+        h = 800
         self.window = self.center_window(w=w, h=h)
         self.window.title("模拟数据生成工具")
         distance = 50
@@ -283,7 +283,7 @@ class TestView(object):
         operation_frame.grid(row=2, column=0, sticky="w")
         self.default_data.clear()
         self.page = 1
-        self.size = 8
+        self.size = 12
         self.add_btn = Button(operation_frame, text="＋", bg=self.view_color, font=self.font, overrelief="ridge",
                               relief="groove", width=6, cursor=self.cursor, command=lambda: self.add(view_frame))
         self.add_btn.grid(row=0, column=0, sticky="w", pady=3)
@@ -553,7 +553,7 @@ class TestView(object):
 
     def choose_field(self, table, database):
         self.page = 1
-        self.size = 12
+        self.size = 15
         if self.field_frame is not None:
             self.field_frame.destroy()
         fields = self.mapper.show_field(table)
