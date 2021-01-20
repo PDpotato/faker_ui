@@ -200,8 +200,9 @@ class TestView(object):
                     ws.cell(row=start + j + 1, column=index, value=i[1].get()).font = text_font
                     continue
                 if self.faker.random_dict.get(i[1].get()) is not None:
+                    v = self.faker.random_dict.get(i[1].get())()
                     ws.cell(row=start + j + 1, column=index,
-                            value=self.faker.random_dict.get(i[1].get())()).font = text_font
+                            value=str(v)).font = text_font
                 index += 1
             if j % num == 0 and j > 0:
                 end_bar = self.set_span(end_bar, 70 // 5 + end_bar)

@@ -1,6 +1,7 @@
 # -- coding: utf-8 --
 from faker import Faker
 from enum import Enum
+from idworker import IdWorker
 import json
 
 
@@ -29,6 +30,7 @@ class Func(Enum):
     MD5 = "MD5"
     PASSWORD = "密码"
     UUID4 = "UUID"
+    SNOW_ID = "雪花ID"
     DATE_TIME = "日期"
     FUTURE_DATETIME = "未来日期"
     PAST_DATETIME = "过去日期"
@@ -47,6 +49,7 @@ class Func(Enum):
 class RandomInfo(Faker):
     def __init__(self, locale="zh-CN"):
         super().__init__(locale=locale)
+        self.id_worker = IdWorker(1, 2, 0)
         self.random_dict = {Func.ADDRESS.value: self.address, Func.COUNTRY.value: self.country,
                             Func.PROVINCE.value: self.province, Func.CITY.value: self.city,
                             Func.DISTRICT.value: self.district, Func.STREET_SUFFIX.value: self.street_suffix,
@@ -55,7 +58,7 @@ class RandomInfo(Faker):
                             Func.EMAIL.value: self.email, Func.IPV4.value: self.ipv4,
                             Func.HEX_COLOR.value: self.hex_color, Func.LATITUDE.value: self.latitude,
                             Func.URL.value: self.url, Func.FILE_NAME.value: self.file_name,
-                            Func.WORDS.value: self.words,
+                            Func.WORDS.value: self.words, Func.SNOW_ID.value: self.id_worker.get_id,
                             Func.WORD.value: self.word, Func.TEXT.value: self.text, Func.SENTENCE.value: self.sentence,
                             Func.BOOLEAN.value: self.boolean, Func.MD5.value: self.md5,
                             Func.PASSWORD.value: self.password, Func.UUID4.value: self.uuid4,
@@ -104,4 +107,5 @@ class RandomInfo(Faker):
 
 if __name__ == '__main__':
     f = RandomInfo("zh-CN")
-    print(f.random_dict.get(Func.CITY.value)())
+    for i in range(1000):
+        print(f.random_dict.get(Func.SNOW_ID.value)())
