@@ -98,7 +98,7 @@ class TestView(object):
                     relief="groove", font=self.font,
                     command=lambda v=view_window, d=distance: self.sql_frame(v, d, l1, "数据库模拟数据", self.choose_field))
         b2 = Button(operation_window, text="WEB模拟数据", overrelief="ridge", cursor=self.cursor, bg=self.color,
-                    relief="groove", font=self.font, state="disable",
+                    relief="groove", font=self.font,
                     command=lambda v=view_window, d=distance: self.web_frame(v, d, l1, "WEB模拟数据"))
         b3 = Button(operation_window, text="数据库导出EXCEL", overrelief="ridge", cursor=self.cursor, bg=self.color,
                     relief="groove", font=self.font, state="disable",
@@ -459,11 +459,13 @@ class TestView(object):
             if self.faker.random_dict.get(i[1].get()) is not None:
                 body[i[0].get()] = self.faker.random_dict.get(i[1].get())()
         if data == self.content_type[0]:
-            func(url, params=body, headers=header)
+            resp = func(url, params=body, headers=header)
         elif data == self.content_type[1]:
-            func(url, data=body, headers=header)
+            resp = func(url, data=body, headers=header)
         elif data == self.content_type[2]:
-            func(url, data=json.dumps(body), headers=header)
+            resp = func(url, data=json.dumps(body), headers=header)
+        if resp.status_code != 200:
+            raise Exception(resp.content)
 
     def clear(self, url_input):
         url_input.delete(0, END)
