@@ -80,15 +80,15 @@ class RandomInfo(Faker):
             param += i[0] + ","
         for j in range(count):
             value += "("
-            for i in data:
-                if last == i[1]:
+            for k in data:
+                if last == k[1]:
                     continue
-                b = i[2] == "int" or i[2] == "tinyint"
-                if self.random_dict.get(i[1]) is None:
-                    s = i[1]
+                b = k[2] == "int" or k[2] == "tinyint"
+                if self.random_dict.get(k[1]) is None:
+                    s = k[1]
                 else:
-                    func = self.random_dict.get(i[1])
-                    if i[2].lower().find("json") != -1:
+                    func = self.random_dict.get(k[1])
+                    if k[2].lower().find("json") != -1:
                         d = dict(func())
                         if d.get("birthdate") is not None:
                             d["birthdate"] = str(d["birthdate"])

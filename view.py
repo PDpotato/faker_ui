@@ -116,6 +116,7 @@ class TestView(object):
         operation_window.add(b4, height=60, width=operation_width, sticky="n")
         operation_window.add(b5, height=60, width=operation_width, sticky="n")
         operation_window.add(l3, height=60, width=operation_width, sticky="s")
+        self.sql_frame(view_window, distance, l1, "数据库模拟数据", self.choose_field)
         self.window.mainloop()
 
     def excel_frame(self, view_window, distance, label, s):
@@ -296,6 +297,12 @@ class TestView(object):
                                relief="groove", width=6, cursor=self.cursor, state="disable",
                                command=lambda: self.next(view_frame))
         self.next_btn.grid(row=1, column=1, sticky="w")
+        import_btn = Button(operation_frame, text="导入历史配置", bg=self.view_color, font=self.font, overrelief="ridge",
+                            relief="groove", width=12, cursor=self.cursor,
+                            command=lambda: self.web_import_history(view_frame, method, url_input))
+        import_btn.grid(row=1, column=2, sticky="w")
+        import_btn.bind("<Enter>", lambda t: self.set_tip(t, "请求成功后会根据请求方式加请求连接地址生成key来存储当前配置，下次即可直接导入"))
+        import_btn.bind("<Leave>", lambda t: self.set_tip(t))
 
         b1 = Button(self.frame, text="请求", bg=self.view_color, font=self.font, overrelief="ridge", relief="groove",
                     width=6, cursor=self.cursor,
@@ -304,6 +311,33 @@ class TestView(object):
         b2 = Button(self.frame, text="清除", bg=self.view_color, font=self.font, overrelief="ridge", relief="groove",
                     width=6, cursor=self.cursor, command=lambda: self.clear(url_input))
         b2.grid(row=0, column=3, sticky=self.sticky)
+
+    def web_import_history(self, frame, method, url_input):
+        url_addr = url_input.get()
+        if url_addr == "":
+            url_input["highlightbackground"] = "red"
+            url_input["highlightcolor"] = "red"
+            url_input["highlightthickness"] = 1
+            return
+        if not url_addr.startswith("http"):
+            url_addr = "http://" + url_addr
+        key = method.get() + "_" + url_addr
+        data = self.history.select_history(key)
+        if len(data) != 0:
+            d = json.loads(data[0][1])
+            for i in range(len(d)):
+                if i >= len(self.default_data):
+                    key = StringVar()
+                    key.set(d[i][0])
+                    value = StringVar()
+                    value.set(d[i][1])
+                    self.default_data.append([key, value])
+                else:
+                    self.default_data[i][0].set(d[i][0])
+                    self.default_data[i][1].set(d[i][1])
+            self.change_web_data(frame)
+        else:
+            messagebox.showwarning(parent=self.window, title="警告", message="该请求地址无历史记录")
 
     def add_auth(self):
         auth_window = self.center_window(300, 280)
@@ -450,6 +484,14 @@ class TestView(object):
         use_time = str(int(round(end * 1000)) - int(round(start * 1000)))
         message = "任务开启成功！执行线程数%s，执行次数%s，耗时:%sms" % (thread_var.get(), request_var.get(), use_time)
         messagebox.showinfo(title="提示", message=message, parent=self.window)
+        key = method.get() + "_" + url_adr
+        data = []
+        for i in self.default_data:
+            d = []
+            for j in i:
+                d.append(j.get())
+            data.append(d)
+        self.history.update_history(key, json.dumps(data, ensure_ascii=False))
 
     def refresh(self, func, url, header, data):
         body = {}
