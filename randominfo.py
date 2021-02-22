@@ -23,7 +23,7 @@ class Func(Enum):
     URL = "URL地址"
     FILE_NAME = "文件名"
     WORD = "单词"
-    WORDS = "字符串"
+    WORDS = "单词数组"
     SENTENCE = "一句话"
     TEXT = "一篇文章"
     BOOLEAN = "布尔类型"
@@ -107,5 +107,4 @@ class RandomInfo(Faker):
 
 if __name__ == '__main__':
     f = RandomInfo("zh-CN")
-    for i in range(1000):
-        print(f.random_dict.get(Func.SNOW_ID.value)())
+    print(f.user_name())

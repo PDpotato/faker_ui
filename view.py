@@ -782,13 +782,13 @@ class TestView(object):
                     if s1 == "boolean" or s1 == "tinyint":
                         field.set(Func.BOOLEAN.value)
                     elif fields[index][0].lower().find("id") != -1 and s1 != "int":
-                        field.set(Func.UUID4.value)
+                        field.set(Func.SNOW_ID.value)
                     elif fields[index][0].lower().find("id") != -1:
                         field.set(Func.NONE.value)
                     elif s1 == "int":
                         field.set(Func.RANDOM_NUMBER.value)
                     elif s1 == "datetime":
-                        field.set(Func.FUTURE_DATETIME.value)
+                        field.set(Func.PAST_DATETIME.value)
                     elif s1 == "varchar":
                         field.set(Func.WORD.value)
                     elif s1 == "boolean":
@@ -799,7 +799,7 @@ class TestView(object):
                         field.set(Func.NONE.value)
                         b["state"] = "disabled"
                     else:
-                        field.set(Func.WORDS.value)
+                        field.set(Func.WORD.value)
                 option = module[i][2]
                 if option is None:
                     option = OptionMenu(self.field_frame, field, *self.faker.random_dict.keys())
