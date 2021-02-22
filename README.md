@@ -4,7 +4,7 @@
 
 ## 使用说明
 
-1. 运行view.py，启动工具
+1. 运行view.py，启动工具，或者下载dist目录下的`模拟数据生成工具.exe`，双击运行
 
 [![sgbhCj.png](https://s3.ax1x.com/2021/01/19/sgbhCj.png)](https://imgchr.com/i/sgbhCj)
 
