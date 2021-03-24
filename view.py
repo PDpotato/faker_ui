@@ -109,12 +109,16 @@ class TestView(object):
         b5 = Button(operation_window, text="生成EXCEL", overrelief="ridge", cursor=self.cursor, bg=self.color,
                     relief="groove", font=self.font,
                     command=lambda v=view_window, d=distance: self.excel_frame(v, d, l1, "生成EXCEL"))
+        b6 = Button(operation_window, text="Java代码生成器", overrelief="ridge", cursor=self.cursor, bg=self.color,
+                    relief="groove", font=self.font,
+                    command=lambda v=view_window, d=distance: self.sql_frame(v, d, l1, "Java代码生成器", None))
         l3 = Label(operation_window, text="author:helz", font=self.font, bg=self.color, width=w, fg="#999966")
         operation_window.add(b1, height=60, width=operation_width, sticky="n")
         operation_window.add(b2, height=60, width=operation_width, sticky="n")
         operation_window.add(b3, height=60, width=operation_width, sticky="n")
         operation_window.add(b4, height=60, width=operation_width, sticky="n")
         operation_window.add(b5, height=60, width=operation_width, sticky="n")
+        operation_window.add(b6, height=60, width=operation_width, sticky="n")
         operation_window.add(l3, height=60, width=operation_width, sticky="s")
         self.sql_frame(view_window, distance, l1, "数据库模拟数据", self.choose_field)
         self.window.mainloop()
