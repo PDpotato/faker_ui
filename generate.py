@@ -12,6 +12,7 @@ class Type(Enum):
     IMPL = "Impl"
     XML = "Xml"
     MAPPER = "Mapper"
+    EXCEPTION_HANDLER = "exceptionHandler"
 
 
 class Generate(object):
@@ -38,7 +39,15 @@ class Generate(object):
                         "Service": "org.springframework.stereotype.Service",
                         "Mapper": "org.apache.ibatis.annotations.Mapper",
                         "BaseMapper": "com.baomidou.mybatisplus.core.mapper.BaseMapper",
-                        "ServiceImpl": "com.baomidou.mybatisplus.extension.service.impl.ServiceImpl"
+                        "ServiceImpl": "com.baomidou.mybatisplus.extension.service.impl.ServiceImpl",
+                        "RestControllerAdvice": "org.springframework.web.bind.annotation.RestControllerAdvice",
+                        "ExceptionHandler": "org.springframework.web.bind.annotation.ExceptionHandler",
+                        "HttpServletRequest": "javax.servlet.http.HttpServletRequest",
+                        "MethodArgumentNotValidException":
+                            "org.springframework.web.bind.MethodArgumentNotValidException",
+                        "Objects": "java.util.Objects",
+                        "DefaultMessageSourceResolvable":
+                            "org.springframework.context.support.DefaultMessageSourceResolvable"
                         }
         self.orm = {"varchar": "String", "int": "Integer", "bigint": "Long", "datetime": "Date", "tinyint": "Integer",
                     "json": "String", "decimal": "BigDecimal"}
@@ -71,8 +80,8 @@ public class %s implements Serializable {
         import_package = ["Data", "TableName", "Builder", "AllArgsConstructor", "NoArgsConstructor", "Serializable"]
         field = '''
 \t/**
-\t* %s
-\t*/
+\t * %s
+\t */
 \t@%s(%s)%s
 \tprivate %s %s;\n'''
         field_str = ""
@@ -96,6 +105,10 @@ public class %s implements Serializable {
                 n += "\n\t@JsonFormat(pattern = \"yyyy-MM-dd HH:mm:ss\")"
                 if "JsonFormat" not in import_package:
                     import_package.append("JsonFormat")
+            if i[0] == "deleted":
+                n += "\n\t@TableLogic(value = \"0\", delval = \"1\")"
+                if "TableLogic" not in import_package:
+                    import_package.append("TableLogic")
             table_annotation = "TableField"
             value = "\"" + i[0] + "\""
             if i[0].lower() == "id":
@@ -113,7 +126,8 @@ public class %s implements Serializable {
             else:
                 if "TableField" not in import_package:
                     import_package.append("TableField")
-            current_field = field % (i[8], table_annotation, value, n, type_, self.small_hump(i[0]))
+            field_comment = i[0] if i[8] == "" else i[8]
+            current_field = field % (field_comment, table_annotation, value, n, type_, self.small_hump(i[0]))
             field_str += current_field
             if type_ not in import_package:
                 import_package.append(type_)
@@ -146,7 +160,7 @@ public class %s implements Serializable {
         with open(path, "w", encoding="utf-8") as file:
             file.write(text)
 
-    def generate_controller(self, package, path, class_name, fields, comment, author="hlz"):
+    def generate_controller(self, package, path, class_name, comment, author="hlz"):
         orgin_name = self.big_hump(class_name)
         class_name += "_controller"
         file_name = self.big_hump(class_name) + ".java"
@@ -174,7 +188,7 @@ public class %s {
         self.write_to(text, path, file_name, package, import_package, comment, author,
                       self.small_hump(orgin_name), self.big_hump(class_name), content)
 
-    def generate_service(self, package, path, class_name, fields, comment, author="hlz"):
+    def generate_service(self, package, path, class_name, comment, author="hlz"):
         orgin_name = self.big_hump(class_name)
         class_name += "_service"
         file_name = self.big_hump(class_name) + ".java"
@@ -198,7 +212,7 @@ public interface %s extends IService<%s> {
         self.write_to(text, path, file_name, package, import_package, comment, author, self.big_hump(class_name),
                       orgin_name, content)
 
-    def generate_impl(self, package, path, class_name, fields, comment, author="hlz"):
+    def generate_impl(self, package, path, class_name, comment, author="hlz"):
         orgin_name = self.big_hump(class_name)
         class_name += "_service_impl"
         file_name = self.big_hump(class_name) + ".java"
@@ -226,7 +240,7 @@ public class %sServiceImpl extends ServiceImpl<%sMapper, %s> implements %sServic
         self.write_to(text, path, file_name, package, import_package, comment, author, orgin_name, orgin_name,
                       orgin_name, orgin_name, content)
 
-    def generate_xml(self, package, path, class_name, fields, comment, author="hlz"):
+    def generate_xml(self, path, class_name, fields):
         orgin_name = self.big_hump(class_name)
         class_name += "_mapper"
         file_name = self.big_hump(class_name) + ".xml"
@@ -252,16 +266,15 @@ public class %sServiceImpl extends ServiceImpl<%sMapper, %s> implements %sServic
             jdbc_type = "OTHER" if jdbc_type is None else jdbc_type
             result_str += format_str % (field_name, jdbc_type, self.small_hump(field_name))
             column_str += "`" + field_name + "`, "
-        params = (namespace, type_name, result_str[0:-1], column_str[0:-1])
+        params = (namespace, type_name, result_str[0:-1], column_str[0:-2])
         text = text % params
         if not os.path.exists(path):
             os.makedirs(path)
         path += "/" + file_name
         with open(path, "w", encoding="utf-8") as file:
             file.write(text)
-        pass
 
-    def generate_mapper(self, package, path, class_name, fields, comment, author="hlz"):
+    def generate_mapper(self, package, path, class_name, comment, author="hlz"):
         orgin_name = self.big_hump(class_name)
         class_name += "_mapper"
         file_name = self.big_hump(class_name) + ".java"
@@ -285,19 +298,58 @@ public interface %sMapper extends BaseMapper<%s> {
         comment += "数据操作层"
         self.write_to(text, path, file_name, package, import_package, comment, author, orgin_name, orgin_name, content)
 
+    def generate_exception_handler(self, package, path, author="hlz"):
+        file_name = "BasicExceptionHandler.java"
+        path = path + "/java/" + package.replace(".", "/") + "/exception"
+        text = '''package %s.exception;
+
+%s
+/**
+* %s
+* @author %s
+* @version 1.0.0
+* @date %s
+*/
+@Slf4j
+@RestControllerAdvice
+public class BasicExceptionHandler {
+    @ExceptionHandler(Exception.class)
+    public String exceptionHandler(Exception e, HttpServletRequest request) {
+        return e.getCause().getMessage();
+    }
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public String exceptionHandler(MethodArgumentNotValidException e, HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        e.getBindingResult().getAllErrors().forEach(error -> sb.append(((DefaultMessageSourceResolvable) Objects.requireNonNull(error.getArguments())[0]).getCode()).append(error.getDefaultMessage()).append(","));
+        return sb.substring(0, sb.length() - 1);
+    }
+
+}'''
+        import_package = ["RestControllerAdvice", "Slf4j", "ExceptionHandler", "HttpServletRequest",
+                          "MethodArgumentNotValidException", "Objects",
+                          "DefaultMessageSourceResolvable"]
+        comment = "全局异常捕获"
+        self.write_to(text, path, file_name, package, import_package, comment, author)
+
     def big_hump(self, value):
         s = ""
         for i in str(value).split("_"):
-            if "a" <= i <= 'z':
-                s += i[0].upper() + i[1:]
+            if 'a' <= i <= 'z' or 'A' <= i <= 'Z':
+                s += i[0].upper() + i[1:].lower()
             else:
                 s += i
         return s
 
     def small_hump(self, value):
-        s = self.big_hump(value)
+        s = value
+        if '_' in value:
+            s = self.big_hump(value)
         return s[0].lower() + s[1:]
 
 
 if __name__ == '__main__':
-    g = Generate()
+    generate = Generate()
+    st = "USER_NAME"
+    print(generate.big_hump(st))
+    print(generate.small_hump(st))

@@ -59,7 +59,10 @@ class TestView(object):
         self.username = "root"
         self.password = "123456"
         self.conditions = {Type.ENTITY.value: 1, Type.SERVICE.value: 1, Type.IMPL.value: 1, Type.MAPPER.value: 1,
-                           Type.XML.value: 1, Type.CONTROLLER.value: 1}
+                           Type.XML.value: 1, Type.CONTROLLER.value: 1, Type.EXCEPTION_HANDLER.value: 0}
+        self.file_path = ""
+        self.package = "com.hlz.demo"
+        self.author = "hlz"
         self.main_window()
 
     # 设置打开的窗口居中
@@ -635,6 +638,7 @@ class TestView(object):
                                           relief="groove")
             self.field_frame.grid(row=0, column=2, sticky="n")
             src = StringVar()
+            src.set(self.file_path)
             file_src = Entry(self.field_frame, bg=self.view_color, font=self.font, relief="groove", width=65,
                              textvariable=src)
             file_src.grid(row=0, column=0, sticky="nsew")
@@ -646,7 +650,7 @@ class TestView(object):
                                  relief="groove")
             package.grid(row=1, column=0, sticky="nsew", columnspan=2, pady=10)
             p_src = StringVar()
-            p_src.set("com.hlz.demo")
+            p_src.set(self.package)
             package_src = Entry(package, bg=self.view_color, font=self.font, relief="groove", width=65,
                                 textvariable=p_src)
             package_src.grid(row=0, column=0, sticky="nsew")
@@ -654,7 +658,7 @@ class TestView(object):
                                    relief="groove")
             user_info.grid(row=2, column=0, sticky="nsew", columnspan=2, pady=10)
             user_src = StringVar()
-            user_src.set("hlz")
+            user_src.set(self.author)
             package_src = Entry(user_info, bg=self.view_color, font=self.font, relief="groove", width=65,
                                 textvariable=user_src)
             package_src.grid(row=0, column=0, sticky="nsew")
@@ -664,8 +668,8 @@ class TestView(object):
 
             for i in range(len(self.conditions)):
                 v1 = IntVar()
-                v1.set(1)
                 key = list(self.conditions.keys())[i]
+                v1.set(self.conditions.get(key))
                 c1 = Checkbutton(choose, text=key, variable=v1, bg=self.view_color, anchor="w",
                                  font=self.font, selectcolor=self.view_color, activebackground=self.view_color,
                                  width=15, command=lambda v=v1, k=key: self.update_condition(k, v.get()))
@@ -695,24 +699,32 @@ class TestView(object):
             return
         else:
             package_src["highlightthickness"] = 0
-        package = p_src.get()
+        self.package = p_src.get()
+        self.file_path = src.get()
         for i in lb.curselection():
             table = lb.get(i)
             fields = self.mapper.show_field(table)
             table_status = self.mapper.show_table_status(table)
-            user = user_src.get()
+            self.author = user_src.get()
             if self.conditions.get(Type.ENTITY.value) == 1:
-                self.dynamic_generate.generate_entity(package, src.get(), table, fields, table_status[0][17], user)
+                self.dynamic_generate.generate_entity(self.package, self.file_path, table, fields, table_status[0][17],
+                                                      self.author)
             if self.conditions.get(Type.MAPPER.value) == 1:
-                self.dynamic_generate.generate_mapper(package, src.get(), table, fields, table_status[0][17], user)
+                self.dynamic_generate.generate_mapper(self.package, self.file_path, table, table_status[0][17],
+                                                      self.author)
             if self.conditions.get(Type.SERVICE.value) == 1:
-                self.dynamic_generate.generate_service(package, src.get(), table, fields, table_status[0][17], user)
+                self.dynamic_generate.generate_service(self.package, self.file_path, table, table_status[0][17],
+                                                       self.author)
             if self.conditions.get(Type.IMPL.value) == 1:
-                self.dynamic_generate.generate_impl(package, src.get(), table, fields, table_status[0][17], user)
+                self.dynamic_generate.generate_impl(self.package, self.file_path, table, table_status[0][17],
+                                                    self.author)
             if self.conditions.get(Type.CONTROLLER.value) == 1:
-                self.dynamic_generate.generate_controller(package, src.get(), table, fields, table_status[0][17], user)
+                self.dynamic_generate.generate_controller(self.package, self.file_path, table, table_status[0][17],
+                                                          self.author)
             if self.conditions.get(Type.XML.value) == 1:
-                self.dynamic_generate.generate_xml(package, src.get(), table, fields, table_status[0][17], user)
+                self.dynamic_generate.generate_xml(self.file_path, table, fields)
+            if self.conditions.get(Type.EXCEPTION_HANDLER.value) == 1:
+                self.dynamic_generate.generate_exception_handler(self.package, self.file_path, self.author)
         messagebox.showinfo(parent=self.window, title="正确", message="生成完成")
 
     def choose_field(self, table, database):
