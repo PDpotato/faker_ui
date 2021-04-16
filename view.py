@@ -79,7 +79,7 @@ class TestView(object):
         w = 1400
         h = 800
         self.window = self.center_window(w=w, h=h)
-        self.window.title("模拟数据生成工具")
+        self.window.title("开发工具")
         distance = 50
         operation_width = 150
         top_height = 70
