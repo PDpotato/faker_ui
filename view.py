@@ -12,6 +12,8 @@ from tkinter import filedialog
 from tkinter import ttk
 from openpyxl import *
 from openpyxl.styles import Font, colors
+from generate import Generate
+from generate import Type
 
 from mysqlmapper import MysqlMapper as mapper
 from history import History as history
@@ -20,16 +22,17 @@ from randominfo import Func
 
 
 class TestView(object):
-    def __init__(self, color="#666666", cursor="hand2", font=("黑体", 11, "bold"), sticky="n" + "s" + "w" + "e",
+    def __init__(self, color="#FAFAFA", cursor="hand2", font=("黑体", 11, "bold"), sticky="n" + "s" + "w" + "e",
                  faker=info("zh_CN")):
         self.color = color
-        self.view_color = "#333333"
+        self.view_color = "#666666"
         self.cursor = cursor
         self.font = font
         self.sticky = sticky
         self.faker = faker
         self.window = None
         self.mapper = None
+        self.dynamic_generate = Generate()
         self.frame = None
         self.table_frame = None
         self.field_frame = None
@@ -55,6 +58,8 @@ class TestView(object):
         self.port = "3306"
         self.username = "root"
         self.password = "123456"
+        self.conditions = {Type.ENTITY.value: 1, Type.SERVICE.value: 1, Type.IMPL.value: 1, Type.MAPPER.value: 1,
+                           Type.XML.value: 1, Type.CONTROLLER.value: 1}
         self.main_window()
 
     # 设置打开的窗口居中
@@ -96,7 +101,7 @@ class TestView(object):
         operation_window.grid(row=1, column=0)
         b1 = Button(operation_window, text="数据库模拟数据", overrelief="ridge", cursor=self.cursor, bg=self.color,
                     relief="groove", font=self.font,
-                    command=lambda v=view_window, d=distance: self.sql_frame(v, d, l1, "数据库模拟数据", self.choose_field))
+                    command=lambda v=view_window, d=distance: self.sql_frame(v, d, l1, "数据库模拟数据", self.choose_tables))
         b2 = Button(operation_window, text="WEB模拟数据", overrelief="ridge", cursor=self.cursor, bg=self.color,
                     relief="groove", font=self.font,
                     command=lambda v=view_window, d=distance: self.web_frame(v, d, l1, "WEB模拟数据"))
@@ -111,7 +116,7 @@ class TestView(object):
                     command=lambda v=view_window, d=distance: self.excel_frame(v, d, l1, "生成EXCEL"))
         b6 = Button(operation_window, text="Java代码生成器", overrelief="ridge", cursor=self.cursor, bg=self.color,
                     relief="groove", font=self.font,
-                    command=lambda v=view_window, d=distance: self.sql_frame(v, d, l1, "Java代码生成器", None))
+                    command=lambda v=view_window, d=distance: self.sql_frame(v, d, l1, "Java代码生成器", self.get_tables))
         l3 = Label(operation_window, text="author:helz", font=self.font, bg=self.color, width=w, fg="#999966")
         operation_window.add(b1, height=60, width=operation_width, sticky="n")
         operation_window.add(b2, height=60, width=operation_width, sticky="n")
@@ -536,13 +541,14 @@ class TestView(object):
         lf = LabelFrame(self.frame, text="请输入MYSQL连接信息", bg=self.view_color, font=self.font, pady=5, relief="sunken")
         lf.grid(row=0, column=0)
         Label(lf, text="主机:", bg=self.view_color, font=self.font, anchor="e", width=8).grid(row=0, column=0)
-        Entry(lf, bg=self.color, textvariable=host, font=self.font).grid(row=0, column=1, padx=x, pady=y)
+        Entry(lf, bg=self.view_color, textvariable=host, font=self.font).grid(row=0, column=1, padx=x, pady=y)
         Label(lf, text="端口:", bg=self.view_color, font=self.font, anchor="e", width=8).grid(row=1, column=0)
-        Entry(lf, bg=self.color, textvariable=port, font=self.font).grid(row=1, column=1, padx=x, pady=y)
+        Entry(lf, bg=self.view_color, textvariable=port, font=self.font).grid(row=1, column=1, padx=x, pady=y)
         Label(lf, text="用户名:", bg=self.view_color, font=self.font, anchor="e", width=8).grid(row=2, column=0)
-        Entry(lf, bg=self.color, textvariable=user, font=self.font).grid(row=2, column=1, padx=x, pady=y)
+        Entry(lf, bg=self.view_color, textvariable=user, font=self.font).grid(row=2, column=1, padx=x, pady=y)
         Label(lf, text="密码:", bg=self.view_color, font=self.font, anchor="e", width=8).grid(row=3, column=0)
-        Entry(lf, bg=self.color, show="*", textvariable=password, font=self.font).grid(row=3, column=1, padx=x, pady=y)
+        Entry(lf, bg=self.view_color, show="*", textvariable=password, font=self.font).grid(row=3, column=1, padx=x,
+                                                                                            pady=y)
         Button(lf, text="连接", bg=self.view_color, font=self.font, overrelief="ridge", cursor=self.cursor, width=10,
                relief="groove", command=lambda: self.connect(host, port, user, password, lf, func)). \
             grid(row=4, column=1)
@@ -578,11 +584,11 @@ class TestView(object):
         lf.grid(row=0, column=0, sticky="n")
         database = StringVar()
         option = OptionMenu(lf, database, *databases,
-                            command=lambda data=database.get(): self.choose_tables(data, func))
+                            command=lambda data=database.get(): func(data))
         option.grid(row=0, column=0)
         self.set_default(option)
 
-    def choose_tables(self, database, func):
+    def choose_tables(self, database):
         if self.table_frame is not None:
             self.table_frame.destroy()
         if self.field_frame is not None:
@@ -594,9 +600,120 @@ class TestView(object):
                                       relief="flat")
         self.table_frame.grid(row=0, column=1, sticky="n")
         table = StringVar()
-        option = OptionMenu(self.table_frame, table, *tables, command=lambda t=table.get(): func(t, database))
+        option = OptionMenu(self.table_frame, table, *tables,
+                            command=lambda t=table.get(): self.choose_field(t, database))
         option.grid(row=0, column=0)
         self.set_default(option)
+
+    def get_tables(self, database):
+        if self.table_frame is not None:
+            self.table_frame.destroy()
+            self.table_frame = None
+        if self.field_frame is not None:
+            self.field_frame.destroy()
+            self.field_frame = None
+        self.table_frame = LabelFrame(self.frame, text="请选择表", bg=self.view_color, font=self.font, pady=5,
+                                      relief="groove")
+        self.table_frame.grid(row=0, column=1, sticky="n")
+        st = Scrollbar(self.table_frame, bg=self.view_color, relief="groove", cursor=self.cursor, orient="horizontal")
+        sl = Scrollbar(self.table_frame, bg=self.view_color, relief="groove", cursor=self.cursor)
+        st.pack(side="bottom", fill="x")
+        sl.pack(side="right", fill="y")
+        lb = Listbox(self.table_frame, bg=self.view_color, font=self.font, selectmode="extended", height=20,
+                     cursor=self.cursor, width=30, relief="groove", yscrollcommand=sl.set, xscrollcommand=st.set)
+        lb.pack(side="left", fill="both")
+        sl.config(command=lb.yview)
+        st.config(command=lb.xview)
+        for i in self.mapper.show_tables(database):
+            lb.insert("end", i[0])
+        lb.bind("<Button-1>", lambda f=None: self.operation(f))
+
+    def operation(self, f):
+        lb = f.widget
+        if self.field_frame is None:
+            self.field_frame = LabelFrame(self.frame, text="操作", bg=self.view_color, font=self.font, pady=5, padx=5,
+                                          relief="groove")
+            self.field_frame.grid(row=0, column=2, sticky="n")
+            src = StringVar()
+            file_src = Entry(self.field_frame, bg=self.view_color, font=self.font, relief="groove", width=65,
+                             textvariable=src)
+            file_src.grid(row=0, column=0, sticky="nsew")
+            file_btn = Button(self.field_frame, text="选择地址", bg=self.view_color, font=self.font, overrelief="ridge",
+                              cursor=self.cursor, width=10, relief="groove",
+                              command=lambda: src.set(filedialog.askdirectory()))
+            file_btn.grid(row=0, column=1, sticky="nsew")
+            package = LabelFrame(self.field_frame, text="包路径", bg=self.view_color, font=self.font, pady=5, padx=5,
+                                 relief="groove")
+            package.grid(row=1, column=0, sticky="nsew", columnspan=2, pady=10)
+            p_src = StringVar()
+            p_src.set("com.hlz.demo")
+            package_src = Entry(package, bg=self.view_color, font=self.font, relief="groove", width=65,
+                                textvariable=p_src)
+            package_src.grid(row=0, column=0, sticky="nsew")
+            user_info = LabelFrame(self.field_frame, text="author", bg=self.view_color, font=self.font, pady=5, padx=5,
+                                   relief="groove")
+            user_info.grid(row=2, column=0, sticky="nsew", columnspan=2, pady=10)
+            user_src = StringVar()
+            user_src.set("hlz")
+            package_src = Entry(user_info, bg=self.view_color, font=self.font, relief="groove", width=65,
+                                textvariable=user_src)
+            package_src.grid(row=0, column=0, sticky="nsew")
+            choose = LabelFrame(self.field_frame, text="生成选项", bg=self.view_color, font=self.font, pady=5, padx=5,
+                                relief="groove")
+            choose.grid(row=3, column=0, sticky="nsew", columnspan=2, pady=10)
+
+            for i in range(len(self.conditions)):
+                v1 = IntVar()
+                v1.set(1)
+                key = list(self.conditions.keys())[i]
+                c1 = Checkbutton(choose, text=key, variable=v1, bg=self.view_color, anchor="w",
+                                 font=self.font, selectcolor=self.view_color, activebackground=self.view_color,
+                                 width=15, command=lambda v=v1, k=key: self.update_condition(k, v.get()))
+                current = i // 4
+                size = i % 4
+                c1.grid(row=current, column=size, pady=10, sticky="w")
+            btn = Button(self.field_frame, text="生成", bg=self.view_color, font=self.font, overrelief="ridge",
+                         cursor=self.cursor, width=10, relief="groove", height=3,
+                         command=lambda: self.generate(lb, src, file_src, p_src, package_src, user_src))
+            btn.grid(row=4, column=0, sticky="w", pady=5)
+
+    def update_condition(self, key, value):
+        self.conditions[key] = value
+
+    def generate(self, lb, src, file_src, p_src, package_src, user_src):
+        if src.get() == "":
+            file_src["highlightbackground"] = "red"
+            file_src["highlightcolor"] = "red"
+            file_src["highlightthickness"] = 1
+            return
+        else:
+            file_src["highlightthickness"] = 0
+        if p_src.get() == "":
+            package_src["highlightbackground"] = "red"
+            package_src["highlightcolor"] = "red"
+            package_src["highlightthickness"] = 1
+            return
+        else:
+            package_src["highlightthickness"] = 0
+        package = p_src.get()
+        for i in lb.curselection():
+            table = lb.get(i)
+            fields = self.mapper.show_field(table)
+            table_status = self.mapper.show_table_status(table)
+            user = user_src.get()
+            if self.conditions.get(Type.ENTITY.value) == 1:
+                self.dynamic_generate.generate_entity(package, src.get(), table, fields, table_status[0][17], user)
+            if self.conditions.get(Type.MAPPER.value) == 1:
+                self.dynamic_generate.generate_mapper(package, src.get(), table, fields, table_status[0][17], user)
+            if self.conditions.get(Type.SERVICE.value) == 1:
+                self.dynamic_generate.generate_service(package, src.get(), table, fields, table_status[0][17], user)
+            if self.conditions.get(Type.IMPL.value) == 1:
+                self.dynamic_generate.generate_impl(package, src.get(), table, fields, table_status[0][17], user)
+            if self.conditions.get(Type.CONTROLLER.value) == 1:
+                self.dynamic_generate.generate_controller(package, src.get(), table, fields, table_status[0][17], user)
+            if self.conditions.get(Type.XML.value) == 1:
+                self.dynamic_generate.generate_xml(package, src.get(), table, fields, table_status[0][17], user)
+        messagebox.showinfo(parent=self.window, title="正确", message="生成完成")
 
     def choose_field(self, table, database):
         self.page = 1

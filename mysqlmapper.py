@@ -18,6 +18,10 @@ class MysqlMapper(object):
         self.cursor.execute("show tables")
         return self.cursor.fetchall()
 
+    def show_table_status(self, table):
+        self.cursor.execute("show table status where name = '%s'" % table)
+        return self.cursor.fetchall()
+
     def show_field(self, table):
         self.cursor.execute("SHOW FULL COLUMNS FROM  `%s`" % table)
         return self.cursor.fetchall()
