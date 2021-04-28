@@ -722,7 +722,7 @@ class TestView(object):
                 self.dynamic_generate.generate_controller(self.package, self.file_path, table, table_status[0][17],
                                                           self.author)
             if self.conditions.get(Type.XML.value) == 1:
-                self.dynamic_generate.generate_xml(self.file_path, table, fields)
+                self.dynamic_generate.generate_xml(self.package, self.file_path, table, fields)
             if self.conditions.get(Type.EXCEPTION_HANDLER.value) == 1:
                 self.dynamic_generate.generate_exception_handler(self.package, self.file_path, self.author)
         messagebox.showinfo(parent=self.window, title="正确", message="生成完成")

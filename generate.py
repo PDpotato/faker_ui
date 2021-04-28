@@ -240,11 +240,11 @@ public class %sServiceImpl extends ServiceImpl<%sMapper, %s> implements %sServic
         self.write_to(text, path, file_name, package, import_package, comment, author, orgin_name, orgin_name,
                       orgin_name, orgin_name, content)
 
-    def generate_xml(self, path, class_name, fields):
+    def generate_xml(self, package, path, class_name, fields):
         orgin_name = self.big_hump(class_name)
         class_name += "_mapper"
         file_name = self.big_hump(class_name) + ".xml"
-        path = path + "/" + "resources/mapper"
+        path = path + "/java/" + package.replace(".", "/") + "/mapper"
         text = '''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="%s">
