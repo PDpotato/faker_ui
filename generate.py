@@ -56,9 +56,9 @@ class Generate(object):
 
     def generate_entity(self, package, path, class_name, fields, comment, author="hlz"):
         file_name = self.big_hump(class_name) + ".java"
-        path = path + "/java/" + package.replace(".", "/") + "/dao"
-        self.package[self.big_hump(class_name)] = package + ".dao." + self.big_hump(class_name)
-        text = '''package %s.dao;
+        path = path + "/java/" + package.replace(".", "/") + "/dto"
+        self.package[self.big_hump(class_name)] = package + ".dto." + self.big_hump(class_name)
+        text = '''package %s.dto;
 
 %s
 /**
@@ -203,7 +203,7 @@ public class %s {
 * @version 1.0.0
 * @date %s
 */
-public interface %s extends IService<%s> {
+public interface I%s extends IService<%s> {
 %s
 }'''
         content = ""
@@ -228,7 +228,7 @@ public interface %s extends IService<%s> {
 */
 @Slf4j
 @Service
-public class %sServiceImpl extends ServiceImpl<%sMapper, %s> implements %sService {
+public class %sServiceImpl extends ServiceImpl<%sMapper, %s> implements I%sService {
 \t@Resource
 %s
 }'''
