@@ -97,10 +97,10 @@ public class %s implements Serializable {
                 if n not in import_package:
                     import_package.append(n)
                 n = "\n\t@" + n
-            if type_ == "Long":
-                n += "\n\t@Stringify"
-                if "Stringify" not in import_package:
-                    import_package.append("Stringify")
+            # if type_ == "Long":
+            #     n += "\n\t@Stringify"
+            #     if "Stringify" not in import_package:
+            #         import_package.append("Stringify")
             if type_ == "Date":
                 n += "\n\t@JsonFormat(pattern = \"yyyy-MM-dd HH:mm:ss\")"
                 if "JsonFormat" not in import_package:
