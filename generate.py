@@ -52,7 +52,7 @@ class Generate(object):
         self.orm = {"varchar": "String", "int": "Integer", "bigint": "Long", "datetime": "Date", "tinyint": "Integer",
                     "json": "String", "decimal": "BigDecimal"}
         self.jdbc = {"int": "INTEGER", "tinyint": "TINYINT", "varchar": "VARCHAR", "timestamp": "TIMESTAMP",
-                     "bigint": "BIGINT", "boolean": "BOOLEAN", "datetime": "DATETIME"}
+                     "bigint": "BIGINT", "boolean": "BOOLEAN", "datetime": "DATE"}
 
     def generate_entity(self, package, path, class_name, fields, comment, author="hlz"):
         file_name = self.big_hump(class_name) + ".java"
@@ -182,7 +182,7 @@ public class %s {
 %s
 }'''
         service_name = orgin_name + Type.SERVICE.value
-        content = "\t%s %s;" % (service_name, self.small_hump(service_name))
+        content = "\t%s %s;" % ("I" + service_name, self.small_hump(service_name))
         import_package = ["RequestMapping", "RestController", "Slf4j", "Resource", service_name]
         comment += "控制器"
         self.write_to(text, path, file_name, package, import_package, comment, author,
@@ -191,9 +191,9 @@ public class %s {
     def generate_service(self, package, path, class_name, comment, author="hlz"):
         orgin_name = self.big_hump(class_name)
         class_name += "_service"
-        file_name = self.big_hump(class_name) + ".java"
+        file_name = "I" + self.big_hump(class_name) + ".java"
         path = path + "/java/" + package.replace(".", "/") + "/service"
-        self.package[self.big_hump(class_name)] = package + ".service." + self.big_hump(class_name)
+        self.package[self.big_hump(class_name)] = package + ".service." + "I" + self.big_hump(class_name)
         text = '''package %s.service;
 
 %s
