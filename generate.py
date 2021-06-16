@@ -50,9 +50,9 @@ class Generate(object):
                             "org.springframework.context.support.DefaultMessageSourceResolvable"
                         }
         self.orm = {"varchar": "String", "int": "Integer", "bigint": "Long", "datetime": "Date", "tinyint": "Integer",
-                    "json": "String", "decimal": "BigDecimal"}
+                    "json": "String", "decimal": "BigDecimal", "double": "Double"}
         self.jdbc = {"int": "INTEGER", "tinyint": "TINYINT", "varchar": "VARCHAR", "timestamp": "TIMESTAMP",
-                     "bigint": "BIGINT", "boolean": "BOOLEAN", "datetime": "DATE"}
+                     "bigint": "BIGINT", "boolean": "BOOLEAN", "datetime": "DATE", "double": "DOUBLE"}
 
     def generate_entity(self, package, path, class_name, fields, comment, author="hlz"):
         file_name = self.big_hump(class_name) + ".java"
