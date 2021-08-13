@@ -116,7 +116,7 @@ public class %s implements Serializable {
                 if "TableId" not in import_package:
                     import_package.append("TableId")
                 if type_ == "Long":
-                    value = "type = IdType.ASSIGN_ID, value = \"id\""
+                    value = "type = IdType.ID_WORKER, value = \"id\""
                     if "IdType" not in import_package:
                         import_package.append("IdType")
                 elif type_ == "Integer":

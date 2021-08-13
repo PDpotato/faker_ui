@@ -25,7 +25,7 @@ class TestView(object):
     def __init__(self, color="#FAFAFA", cursor="hand2", font=("黑体", 11, "bold"), sticky="n" + "s" + "w" + "e",
                  faker=info("zh_CN")):
         self.color = color
-        self.view_color = "#666666"
+        self.view_color = "#C0C0C0"
         self.cursor = cursor
         self.font = font
         self.sticky = sticky
@@ -54,7 +54,7 @@ class TestView(object):
         self.auth = None
         self.page = 1
         self.size = 12
-        self.host = "localhost"
+        self.host = "192.168.1.200"
         self.port = "3306"
         self.username = "root"
         self.password = "123456"
@@ -623,7 +623,8 @@ class TestView(object):
         st.pack(side="bottom", fill="x")
         sl.pack(side="right", fill="y")
         lb = Listbox(self.table_frame, bg=self.view_color, font=self.font, selectmode="extended", height=20,
-                     cursor=self.cursor, width=30, relief="groove", yscrollcommand=sl.set, xscrollcommand=st.set)
+                     cursor=self.cursor, width=30, relief="groove", yscrollcommand=sl.set, xscrollcommand=st.set,
+                     selectforeground="yellow")
         lb.pack(side="left", fill="both")
         sl.config(command=lb.yview)
         st.config(command=lb.xview)
